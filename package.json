@@ -1,0 +1,22 @@
+{
+  "name": "express-lens",
+  "version": "1.0.0",
+  "description": "A lightweight, plug-and-play monitoring package for Express.js applications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "monitor",
+    "monitoring",
+    "metrics",
+    "dashboard",
+    "performance"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "express": "^4.22.2"
+  }
+}
