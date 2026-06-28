@@ -9,6 +9,7 @@ A lightweight, plug-and-play monitoring package for Express.js applications. It 
 ## Features
 
 - **Zero setup**: Just plug it into your Express app as a middleware.
+- **Dual Support**: Natively supports both CommonJS (`require`) and ES Modules (`import`).
 - **Inline Analytics Logs**: View realtime metrics for every request without any dashboards getting in the way.
 - **Performance Tracking**: Measures response times, average request durations, and memory (RSS) usage.
 - **Error Tracking**: Keeps a tally of request errors (HTTP 400+).
@@ -30,12 +31,25 @@ yarn add @codebygarv/express-lens
 
 ## Usage
 
-Simply require the middleware and add it to your Express app before declaring your routes.
+This package supports both CommonJS and ES Modules.
+
+### CommonJS (CJS)
 
 ```javascript
 const express = require('express');
 const monitor = require('@codebygarv/express-lens');
+```
 
+### ES Modules (ESM)
+
+```javascript
+import express from 'express';
+import monitor from '@codebygarv/express-lens';
+```
+
+### Example Setup
+
+```javascript
 const app = express();
 
 // Add the monitor middleware
@@ -65,8 +79,24 @@ The `monitor` middleware takes an optional configuration object.
 
 ```javascript
 app.use(monitor({
-  logAnalytics: true // Default is true. Set to false to disable console logging.
+  logAnalytics: true, // Default is true. Set to false to disable console logging entirely.
+  logInterval: 0      // Default is 0 (logs every request). Set to > 0 (in milliseconds) for batched logging.
 }));
+```
+
+### High Performance Mode (Batched Logging)
+
+If your API receives high traffic (e.g., 100+ requests per second), logging every single request will cause significant I/O overhead. You can enable batched logging by passing a `logInterval` (in milliseconds).
+
+```javascript
+app.use(monitor({
+  logInterval: 5000 // Logs a summary of the last 5 seconds instead of every individual request
+}));
+```
+
+*Example Output with `logInterval: 5000`:*
+```
+[Analytics Summary] Interval Reqs: 1250 | Total Reqs: 15000 | Errors: 5 | Avg: 22.10ms | Mem: 45.21MB
 ```
 
 ## Exported Metrics

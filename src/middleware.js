@@ -1,6 +1,9 @@
 const store = require('./store');
 const { getSystemMetrics } = require('./system');
 
+let lastLogTime = Date.now();
+let intervalReqCount = 0;
+
 function trackRequest(req, res, next, options = {}) {
   const startAt = process.hrtime();
   
@@ -45,11 +48,22 @@ function trackRequest(req, res, next, options = {}) {
     routeStats.minDuration = Math.min(routeStats.minDuration, timeMs);
 
     if (options.logAnalytics !== false) {
-      const { memory } = getSystemMetrics();
-      const rssMb = (memory.rss / 1024 / 1024).toFixed(2);
-      const avgDuration = store.totalRequests > 0 ? (store.totalDuration / store.totalRequests).toFixed(2) : '0.00';
+      intervalReqCount++;
+      const logInterval = options.logInterval || 0;
       
-      console.log(`[Analytics] ${req.method} ${req.originalUrl || req.url} -> ${res.statusCode} (${timeMs.toFixed(2)}ms) | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`);
+      if (logInterval === 0 || Date.now() - lastLogTime >= logInterval) {
+        const { memory } = getSystemMetrics();
+        const rssMb = (memory.rss / 1024 / 1024).toFixed(2);
+        const avgDuration = store.totalRequests > 0 ? (store.totalDuration / store.totalRequests).toFixed(2) : '0.00';
+        
+        if (logInterval === 0) {
+          console.log(`[Analytics] ${req.method} ${req.originalUrl || req.url} -> ${res.statusCode} (${timeMs.toFixed(2)}ms) | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`);
+        } else {
+          console.log(`[Analytics Summary] Interval Reqs: ${intervalReqCount} | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`);
+          intervalReqCount = 0;
+          lastLogTime = Date.now();
+        }
+      }
     }
   });
 
