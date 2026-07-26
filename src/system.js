@@ -1,9 +1,9 @@
-const os = require('os');
+import os from 'os';
 
 let cachedMetrics = null;
 let lastMetricFetchTime = 0;
 
-function getSystemMetrics(cacheTTL = 5000) {
+export function getSystemMetrics(cacheTTL = 5000) {
   const now = Date.now();
   if (cachedMetrics && (now - lastMetricFetchTime < cacheTTL)) {
     return cachedMetrics;
@@ -31,6 +31,3 @@ function getSystemMetrics(cacheTTL = 5000) {
   return cachedMetrics;
 }
 
-module.exports = {
-  getSystemMetrics
-};

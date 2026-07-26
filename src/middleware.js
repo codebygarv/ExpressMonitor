@@ -1,10 +1,10 @@
-const store = require('./store');
-const { getSystemMetrics } = require('./system');
+import store from './store.js';
+import { getSystemMetrics } from './system.js';
 
 let lastLogTime = Date.now();
 let intervalReqCount = 0;
 
-function trackRequest(req, res, next, options = {}) {
+export default function trackRequest(req, res, next, options = {}) {
   const startAt = process.hrtime();
   
   // Track basic request
@@ -69,5 +69,3 @@ function trackRequest(req, res, next, options = {}) {
 
   next();
 }
-
-module.exports = trackRequest;

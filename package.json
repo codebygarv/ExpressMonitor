@@ -1,6 +1,6 @@
 {
   "name": "@codebygarv/express-lens",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "publishConfig": {
     "access": "public"
   },
@@ -20,7 +20,7 @@
     "index.d.ts"
   ],
   "scripts": {
-    "build": "tsup index.js --format cjs,esm --clean",
+    "build": "tsup",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
