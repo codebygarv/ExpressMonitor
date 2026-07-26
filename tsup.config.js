@@ -7,7 +7,7 @@ export default defineConfig({
   footer({ format }) {
     if (format === 'cjs') {
       return {
-        js: 'if (typeof module !== "undefined" && module.exports) { module.exports = monitor; module.exports.default = monitor; }',
+        js: 'if (typeof module !== "undefined" && module.exports) { module.exports = monitor; module.exports.default = monitor; Object.assign(module.exports, { getMetrics, resetMetrics, metricsHandler }); }',
       };
     }
   },

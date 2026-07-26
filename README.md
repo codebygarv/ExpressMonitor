@@ -4,34 +4,34 @@
 [![npm downloads](https://img.shields.io/npm/dt/@codebygarv/express-lens.svg)](https://www.npmjs.com/package/@codebygarv/express-lens)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A lightweight, plug-and-play monitoring package for Express.js applications. It silently tracks your application's metrics and logs a concise analytics summary inline to the console for every HTTP request.
+A lightweight, plug-and-play monitoring and logging package for Express.js applications. It silently tracks your application's real-time performance metrics, logs colorized analytics inline to the console, and exposes programmatic JSON metrics endpoints out-of-the-box.
 
 ## Features
 
 - **Zero setup**: Just plug it into your Express app as a middleware.
 - **Dual Support**: Natively supports both CommonJS (`require`) and ES Modules (`import`).
-- **Inline Analytics Logs**: View realtime metrics for every request without any dashboards getting in the way.
-- **Performance Tracking**: Measures response times, average request durations, and memory (RSS) usage.
-- **Error Tracking**: Keeps a tally of request errors (HTTP 400+).
-- **Route Specific Metrics**: Keeps track of min, max, and total duration per route.
+- **Colorized Analytics Logs**: Realtime HTTP logs with ANSI color-coded status codes and latency.
+- **Performance & Error Tracking**: Response times, memory (RSS/Heap), status tallies, and recent error log buffer.
+- **Memory Leak Protection**: Auto-bounded route capacity map (`MAX_ROUTES`).
+- **Programmatic API**: Export metrics via `getMetrics()` or expose a ready-to-use `/metrics` HTTP endpoint.
+- **Route Filtering**: Ignore health check or noise endpoints using `ignoreRoutes`.
 
 ## Why `@codebygarv/express-lens`? (Comparison with Morgan)
 
-`morgan` is a great basic request logger, but it only prints static text lines for each request. `@codebygarv/express-lens` acts as an **all-in-one lightweight APM & logger** that keeps continuous in-memory metrics without needing external dashboards or databases.
+`morgan` is a basic request logger that outputs static text lines. `@codebygarv/express-lens` acts as an **all-in-one lightweight APM & logger** that keeps continuous in-memory metrics without needing external dashboards or databases.
 
 | Feature | `morgan` | `@codebygarv/express-lens` |
 | :--- | :---: | :---: |
-| **Request Logging** | Single raw text line | Realtime metric-rich log line |
+| **Request Logging** | Raw text line | Colorized metric-rich log line |
 | **Aggregated Metrics (Total Reqs, Avg Latency)** | ❌ No | ✅ Yes |
-| **Error Tally (HTTP 4xx / 5xx)** | ❌ No | ✅ Yes |
-| **Process Memory (RSS) Tracking** | ❌ No | ✅ Yes |
-| **Per-Route Analytics (Min / Max / Avg)** | ❌ No | ✅ Yes |
+| **Error Tally & Buffer (HTTP 4xx / 5xx)** | ❌ No | ✅ Yes |
+| **Process Memory (RSS/Heap) Tracking** | ❌ No | ✅ Yes |
+| **Per-Route Performance (Min / Max / Avg)** | ❌ No | ✅ Yes |
+| **Programmatic API & JSON Endpoint** | ❌ No | ✅ `getMetrics()` & `metricsHandler()` |
 | **High-Traffic Batched Logging (`logInterval`)** | ❌ No | ✅ Yes |
 | **Dual CommonJS & Native ES Module Support** | ⚠️ Partial | ✅ Native CJS & ESM (`.js` & `.mjs`) |
 
 ## Installation
-
-You can install `@codebygarv/express-lens` using npm or yarn:
 
 ```bash
 npm install @codebygarv/express-lens
@@ -45,33 +45,40 @@ yarn add @codebygarv/express-lens
 
 ## Usage
 
-This package supports both CommonJS and ES Modules.
-
 ### CommonJS (CJS)
 
 ```javascript
 const express = require('express');
 const monitor = require('@codebygarv/express-lens');
+const { getMetrics, metricsHandler } = require('@codebygarv/express-lens');
 ```
 
 ### ES Modules (ESM)
 
 ```javascript
 import express from 'express';
-import monitor from '@codebygarv/express-lens';
+import monitor, { getMetrics, metricsHandler } from '@codebygarv/express-lens';
 ```
 
-### Example Setup
+### Quick Setup Example
 
 ```javascript
+const express = require('express');
+const monitor = require('@codebygarv/express-lens');
+
 const app = express();
 
 // Add the monitor middleware
-app.use(monitor());
+app.use(monitor({
+  ignoreRoutes: ['/health', '/favicon.ico']
+}));
+
+// Expose a JSON metrics endpoint for dashboards / health checks
+app.get('/express-lens/metrics', metricsHandler());
 
 // Your routes
-app.post('/users', (req, res) => {
-  res.status(201).json({ message: 'User created' });
+app.get('/users', (req, res) => {
+  res.json([{ id: 1, name: 'Alice' }]);
 });
 
 app.listen(3000, () => {
@@ -79,51 +86,61 @@ app.listen(3000, () => {
 });
 ```
 
-### Example Console Output
+## Programmatic APIs
 
-When a request hits your server, you will see a log similar to this in your console:
+### `getMetrics()`
+Returns a complete JSON snapshot of all tracked metrics:
 
+```javascript
+const { getMetrics } = require('@codebygarv/express-lens');
+
+console.log(getMetrics());
 ```
-[Analytics] GET /users -> 201 (15.42ms) | Total Reqs: 120 | Errors: 0 | Avg: 22.10ms | Mem: 45.21MB
+
+*Sample Output:*
+```json
+{
+  "totalRequests": 142,
+  "totalErrors": 2,
+  "errorRate": "1.41%",
+  "avgDurationMs": 18.35,
+  "statusCodes": { "200": 140, "404": 2 },
+  "methods": { "GET": 120, "POST": 22 },
+  "routes": {
+    "GET /users": { "count": 120, "avgDuration": 15.2, "minDuration": 4.1, "maxDuration": 42.8 }
+  },
+  "recentErrors": [
+    {
+      "timestamp": "2026-07-26T11:00:00.000Z",
+      "method": "GET",
+      "url": "/unknown",
+      "status": 404,
+      "durationMs": 2.1
+    }
+  ],
+  "system": {
+    "uptime": 124.5,
+    "memory": { "heapTotal": 35430400, "heapUsed": 21500000, "rss": 48200000 }
+  }
+}
 ```
 
-## Configuration
+### `metricsHandler()`
+Serves the `getMetrics()` JSON payload over HTTP directly as an Express handler.
 
-The `monitor` middleware takes an optional configuration object.
+### `resetMetrics()`
+Resets all internal metric counters to 0.
+
+## Configuration Options
 
 ```javascript
 app.use(monitor({
-  logAnalytics: true, // Default is true. Set to false to disable console logging entirely.
-  logInterval: 0      // Default is 0 (logs every request). Set to > 0 (in milliseconds) for batched logging.
+  logAnalytics: true,               // Default: true. Set to false to disable console output.
+  logInterval: 0,                   // Default: 0 (logs every request). Set > 0 (in ms) for batched logging.
+  colorize: true,                   // Default: true. Colorizes status codes and latencies in terminal.
+  ignoreRoutes: ['/health', '/metrics'] // Routes to ignore from logging & tracking.
 }));
 ```
-
-### High Performance Mode (Batched Logging)
-
-If your API receives high traffic (e.g., 100+ requests per second), logging every single request will cause significant I/O overhead. You can enable batched logging by passing a `logInterval` (in milliseconds).
-
-```javascript
-app.use(monitor({
-  logInterval: 5000 // Logs a summary of the last 5 seconds instead of every individual request
-}));
-```
-
-*Example Output with `logInterval: 5000`:*
-```
-[Analytics Summary] Interval Reqs: 1250 | Total Reqs: 15000 | Errors: 5 | Avg: 22.10ms | Mem: 45.21MB
-```
-
-## Exported Metrics
-
-Internally, `express-lens` tracks the following data:
-
-| Metric | Description |
-|--------|-------------|
-| Total Requests | Count of all incoming HTTP requests |
-| Total Errors | Count of responses with status >= 400 |
-| Avg Duration | Average response time across all endpoints |
-| Memory (RSS) | Current Resident Set Size of the Node process |
-| Route Metrics | Counts, and min/max durations separated by route |
 
 ## License
 

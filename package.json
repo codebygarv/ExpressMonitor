@@ -1,6 +1,6 @@
 {
   "name": "@codebygarv/express-lens",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "keywords": [
     "express",
