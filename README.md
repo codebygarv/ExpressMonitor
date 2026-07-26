@@ -15,6 +15,20 @@ A lightweight, plug-and-play monitoring package for Express.js applications. It 
 - **Error Tracking**: Keeps a tally of request errors (HTTP 400+).
 - **Route Specific Metrics**: Keeps track of min, max, and total duration per route.
 
+## Why `@codebygarv/express-lens`? (Comparison with Morgan)
+
+`morgan` is a great basic request logger, but it only prints static text lines for each request. `@codebygarv/express-lens` acts as an **all-in-one lightweight APM & logger** that keeps continuous in-memory metrics without needing external dashboards or databases.
+
+| Feature | `morgan` | `@codebygarv/express-lens` |
+| :--- | :---: | :---: |
+| **Request Logging** | Single raw text line | Realtime metric-rich log line |
+| **Aggregated Metrics (Total Reqs, Avg Latency)** | ❌ No | ✅ Yes |
+| **Error Tally (HTTP 4xx / 5xx)** | ❌ No | ✅ Yes |
+| **Process Memory (RSS) Tracking** | ❌ No | ✅ Yes |
+| **Per-Route Analytics (Min / Max / Avg)** | ❌ No | ✅ Yes |
+| **High-Traffic Batched Logging (`logInterval`)** | ❌ No | ✅ Yes |
+| **Dual CommonJS & Native ES Module Support** | ⚠️ Partial | ✅ Native CJS & ESM (`.js` & `.mjs`) |
+
 ## Installation
 
 You can install `@codebygarv/express-lens` using npm or yarn:

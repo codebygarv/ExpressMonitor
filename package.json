@@ -25,11 +25,21 @@
   },
   "keywords": [
     "express",
+    "express-middleware",
+    "morgan",
+    "morgan-alternative",
+    "logger",
+    "logging",
+    "express-logging",
     "monitor",
     "monitoring",
     "metrics",
-    "dashboard",
-    "performance"
+    "apm",
+    "observability",
+    "performance",
+    "memory-monitoring",
+    "route-metrics",
+    "realtime-analytics"
   ],
   "author": "",
   "license": "MIT",
