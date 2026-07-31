@@ -206,6 +206,9 @@ app.use(
     colorize: true, // Colorize status codes and latency in terminal
     ignoreRoutes: ['/health', '/metrics'], // Skip tracking for matched paths or regex
     slowThresholdMs: 500, // Profile requests exceeding duration threshold (ms)
+    maxBodySize: 1024, // Maximum body bytes to capture per request (default: 1024 bytes)
+    maxDepth: 4, // Maximum JSON depth before collapsing inner objects
+    maxArrayItems: 10, // Maximum array items to show before truncating
     redactHeaders: ['x-custom-token'], // Additional header names to mask as [REDACTED]
     alerts: {
       errorRateThreshold: 5, // Alert when error rate >= 5%
