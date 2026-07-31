@@ -2,11 +2,11 @@ import store from './store.ts';
 
 /**
  * Formats Express Lens metrics into standard Prometheus Exposition text format (v0.0.4).
- * @returns {string} Prometheus formatted metrics string
+ * @returns Prometheus formatted metrics string
  */
-export function getPrometheusMetrics() {
+export function getPrometheusMetrics(): string {
   const metrics = store.getMetrics();
-  const lines = [];
+  const lines: string[] = [];
 
   lines.push('# HELP http_requests_total Total number of HTTP requests processed');
   lines.push('# TYPE http_requests_total counter');
@@ -74,10 +74,10 @@ export function getPrometheusMetrics() {
 
 /**
  * Express middleware route handler to serve Prometheus format metrics over HTTP.
- * @returns {Function} Express request handler (req, res)
+ * @returns Express request handler (req, res)
  */
 export function prometheusHandler() {
-  return function (_req, res) {
+  return function (_req: any, res: any): void {
     if (typeof res.setHeader === 'function') {
       res.setHeader('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
     }

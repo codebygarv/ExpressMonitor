@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { getPrometheusMetrics, prometheusHandler } from '../src/prometheus.js';
+import { getPrometheusMetrics, prometheusHandler } from '../src/prometheus.ts';
 import store from '../src/store.ts';
 
 test('Prometheus Exporter Suite', async (t) => {
