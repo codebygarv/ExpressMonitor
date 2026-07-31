@@ -118,6 +118,39 @@ const store = {
     }
   },
 
+  async replayRequest(requestId, fetchFn = globalThis.fetch) {
+    const entry = this.recentRequests.find((r) => r.id === requestId);
+    if (!entry) {
+      throw new Error(`Request with ID "${requestId}" not found in recent history.`);
+    }
+
+    if (typeof fetchFn !== 'function') {
+      return { success: false, error: 'Fetch API not available' };
+    }
+
+    const startTime = Date.now();
+    try {
+      const response = await fetchFn(entry.url, {
+        method: entry.method,
+        headers: entry.headers,
+      });
+      const durationMs = Date.now() - startTime;
+
+      return {
+        success: true,
+        status: response.status,
+        durationMs,
+        originalRequestId: requestId,
+      };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.message,
+        originalRequestId: requestId,
+      };
+    }
+  },
+
   getPercentiles(samples = this.latencies) {
     return {
       p50: calculatePercentile(samples, 50),

@@ -38,6 +38,7 @@ test('Store Module Upgrades Suite', async (t) => {
 
   await t.test('exports valid HAR 1.2 object', () => {
     store.recordRequest({
+      id: 'req_1',
       timestamp: new Date().toISOString(),
       method: 'GET',
       url: '/api/items',
@@ -51,5 +52,23 @@ test('Store Module Upgrades Suite', async (t) => {
     assert.strictEqual(har.log.entries.length, 1);
     assert.strictEqual(har.log.entries[0].request.url, '/api/items');
     assert.strictEqual(har.log.entries[0].response.status, 200);
+  });
+
+  await t.test('replays recorded request successfully', async () => {
+    store.recordRequest({
+      id: 'req_replay_1',
+      timestamp: new Date().toISOString(),
+      method: 'GET',
+      url: 'https://example.com/api',
+      headers: {}
+    });
+
+    const mockFetch = async (url, opts) => {
+      return { status: 200 };
+    };
+
+    const result = await store.replayRequest('req_replay_1', mockFetch);
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.status, 200);
   });
 });
