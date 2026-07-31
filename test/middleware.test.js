@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import monitor, { getMetrics, resetMetrics } from '../index.js';
+import monitor, { getMetrics, resetMetrics } from '../index.ts';
 
 test('Middleware Integration Suite', async (t) => {
   t.afterEach(() => {
