@@ -1,10 +1,10 @@
-import store from './store.js';
+import store from './store.ts';
 
 /**
  * Returns the embedded single-page HTML dashboard UI template.
- * @returns {string} HTML document
+ * @returns HTML document
  */
-export function getDashboardHTML() {
+export function getDashboardHTML(): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,7 +213,6 @@ export function getDashboardHTML() {
         document.getElementById('valP99').innerText = metrics.percentiles.p99 || 0;
       }
 
-      // Render routes
       if (metrics.routes) {
         const routesBody = document.getElementById('routesBody');
         routesBody.innerHTML = '';
@@ -231,7 +230,6 @@ export function getDashboardHTML() {
         }
       }
 
-      // Render slow requests
       if (metrics.slowRequests && metrics.slowRequests.length > 0) {
         const slowBody = document.getElementById('slowBody');
         slowBody.innerHTML = '';
@@ -307,10 +305,10 @@ export function getDashboardHTML() {
 
 /**
  * Express middleware route handler to serve the interactive web dashboard & SSE events stream.
- * @returns {Function} Express request handler (req, res)
+ * @returns Express request handler (req, res, next)
  */
 export function dashboardHandler() {
-  return function (req, res, next) {
+  return function (req: any, res: any, next: any): void {
     const url = req.url || req.originalUrl || '';
 
     // 1. SSE Events endpoint

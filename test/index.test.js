@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import monitor, { getMetrics, resetMetrics, metricsHandler } from '../index.js';
+import monitor, { getMetrics, resetMetrics, metricsHandler } from '../index.ts';
 
 test('ExpressLens Middleware Suite', async (t) => {
   t.afterEach(() => {

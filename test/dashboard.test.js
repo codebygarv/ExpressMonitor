@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { dashboardHandler, getDashboardHTML } from '../src/dashboard.js';
-import store from '../src/store.js';
+import { dashboardHandler, getDashboardHTML } from '../src/dashboard.ts';
+import store from '../src/store.ts';
 
 test('Dashboard Module Suite', async (t) => {
   t.afterEach(() => {

@@ -1,6 +1,6 @@
 {
   "name": "@codebygarv/express-lens",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -76,6 +76,7 @@
     "express": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^26.1.2",
     "tsup": "^8.5.1",
     "tsx": "^4.23.1",
     "typescript": "^6.0.3"
