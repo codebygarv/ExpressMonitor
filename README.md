@@ -5,6 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/@codebygarv/express-lens.svg)](https://www.npmjs.com/package/@codebygarv/express-lens)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js CI](https://github.com/codebygarv/ExpressMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/codebygarv/ExpressMonitor/actions)
+[![Docs](https://img.shields.io/badge/docs-live-brightgreen)](https://codebygarv.github.io/ExpressMonitor/)
 
 > Zero-dependency HTTP monitoring, APM metrics, percentile latencies (p50/p90/p95/p99), threshold alert callbacks, Prometheus format exporter, slow request profiler, and real-time embedded web dashboard for Express.js applications.
 
