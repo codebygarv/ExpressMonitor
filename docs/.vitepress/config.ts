@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
+  base: '/ExpressMonitor/',
   title: 'Express Lens',
   description: 'Zero-dependency HTTP monitoring, APM metrics, percentile latencies, Prometheus format exporter, slow request profiler, and real-time web dashboard for Node.js & Edge.',
   themeConfig: {
