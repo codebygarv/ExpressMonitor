@@ -40,10 +40,14 @@ export function withExpressLens(handler: Function, options: ExpressLensOptions =
       const requestId = `next_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
       const headersObj: Record<string, string> = {};
-      if (req.headers) {
-        req.headers.forEach((v, k) => {
-          headersObj[k] = v;
-        });
+      if (req && req.headers) {
+        if (typeof req.headers.forEach === 'function') {
+          req.headers.forEach((v, k) => {
+            headersObj[k] = v;
+          });
+        } else if (typeof req.headers === 'object') {
+          Object.assign(headersObj, req.headers);
+        }
       }
 
       const sanitizedHeaders = redactHeaders(headersObj, customRedactList);

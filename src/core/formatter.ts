@@ -18,6 +18,11 @@ export function formatPayload(data: any, options: FormatPayloadOptions = {}, cur
     return data;
   }
 
+  if (data instanceof Date) return data.toISOString();
+  if (data instanceof RegExp) return data.toString();
+  if (data instanceof Error) return `${data.name}: ${data.message}`;
+  if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(data)) return `[Buffer (${data.length} bytes)]`;
+
   if (currentDepth > maxDepth) {
     if (Array.isArray(data)) {
       return `[Array(${data.length})]`;

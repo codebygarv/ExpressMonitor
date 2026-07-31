@@ -19,4 +19,16 @@ test('Payload Formatter Suite', async (t) => {
     assert.strictEqual(formatted.length, 6);
     assert.strictEqual(formatted[5], '... 7 more items');
   });
+
+  await t.test('formats Date, RegExp, Error, and Buffer correctly', () => {
+    const date = new Date('2026-01-01T00:00:00.000Z');
+    const regex = /test-regex/i;
+    const err = new Error('Something failed');
+    const buf = Buffer.from('hello');
+
+    assert.strictEqual(formatPayload(date), '2026-01-01T00:00:00.000Z');
+    assert.strictEqual(formatPayload(regex), '/test-regex/i');
+    assert.strictEqual(formatPayload(err), 'Error: Something failed');
+    assert.strictEqual(formatPayload(buf), '[Buffer (5 bytes)]');
+  });
 });

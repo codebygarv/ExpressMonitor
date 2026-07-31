@@ -8,7 +8,7 @@
 
 > **withExpressLens**(`handler`, `options?`): (`req`, `context?`) => `Promise`\<`Response`\>
 
-Defined in: [src/next.ts:9](https://github.com/codebygarv/ExpressMonitor/blob/8a9f04d3375a35543410b6a3b17e8947fd21d4b7/src/next.ts#L9)
+Defined in: [src/next.ts:9](https://github.com/codebygarv/ExpressMonitor/blob/e23879fd3a249d911360fd31d4aac54be25d38bd/src/next.ts#L9)
 
 Higher-Order Function to wrap Next.js App Router route handlers with HTTP monitoring.
 

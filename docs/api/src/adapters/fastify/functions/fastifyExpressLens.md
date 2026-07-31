@@ -8,7 +8,7 @@
 
 > **fastifyExpressLens**(`options?`): (`fastify`) => `Promise`\<`void`\>
 
-Defined in: [src/adapters/fastify.ts:9](https://github.com/codebygarv/ExpressMonitor/blob/8a9f04d3375a35543410b6a3b17e8947fd21d4b7/src/adapters/fastify.ts#L9)
+Defined in: [src/adapters/fastify.ts:9](https://github.com/codebygarv/ExpressMonitor/blob/e23879fd3a249d911360fd31d4aac54be25d38bd/src/adapters/fastify.ts#L9)
 
 Fastify plugin adapter for Express Lens HTTP monitoring and debugging.
 

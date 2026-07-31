@@ -8,7 +8,7 @@
 
 > **honoExpressLens**(`options?`): (`c`, `next`) => `Promise`\<`any`\>
 
-Defined in: [src/adapters/hono.ts:10](https://github.com/codebygarv/ExpressMonitor/blob/8a9f04d3375a35543410b6a3b17e8947fd21d4b7/src/adapters/hono.ts#L10)
+Defined in: [src/adapters/hono.ts:10](https://github.com/codebygarv/ExpressMonitor/blob/e23879fd3a249d911360fd31d4aac54be25d38bd/src/adapters/hono.ts#L10)
 
 Hono & Edge framework adapter for Express Lens HTTP monitoring and debugging.
 Compatible with Hono, Cloudflare Workers, Deno, Bun, and Vercel Edge.

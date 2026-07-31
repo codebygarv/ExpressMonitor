@@ -45,9 +45,13 @@ export function honoExpressLens(options: ExpressLensOptions = {}): (c: any, next
     const requestId = `hono_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const headersObj: Record<string, string> = {};
     if (c.req.raw && c.req.raw.headers) {
-      c.req.raw.headers.forEach((v: string, k: string) => {
-        headersObj[k] = v;
-      });
+      if (typeof c.req.raw.headers.forEach === 'function') {
+        c.req.raw.headers.forEach((v: string, k: string) => {
+          headersObj[k] = v;
+        });
+      } else if (typeof c.req.raw.headers === 'object') {
+        Object.assign(headersObj, c.req.raw.headers);
+      }
     }
 
     const sanitizedHeaders = redactHeaders(headersObj, customRedactList);
