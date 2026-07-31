@@ -1,6 +1,6 @@
 {
   "name": "@codebygarv/express-lens",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Zero-dependency HTTP monitoring, APM metrics, percentile latencies, Prometheus format exporter, slow request profiler, and real-time web dashboard for Express, Fastify, Hono, and Next.js.",
   "license": "MIT",
   "exports": {
