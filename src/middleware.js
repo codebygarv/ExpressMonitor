@@ -1,5 +1,6 @@
 import store from './store.js';
 import { getSystemMetrics } from './system.js';
+import { redactHeaders, generateCurl } from './utils.js';
 
 // ANSI color helpers
 function colorizeStatus(status, colorize = true) {
@@ -32,23 +33,30 @@ function shouldIgnoreRoute(url, ignoreRoutes = []) {
   });
 }
 
+let requestIdCounter = 0;
+
 export default function createMiddleware(options = {}) {
-  // Instance-scoped timer state to avoid global state pollution across middleware instances
   const state = {
     lastLogTime: Date.now(),
     intervalReqCount: 0,
   };
 
+  const slowThresholdMs = options.slowThresholdMs != null ? options.slowThresholdMs : 500;
+  const customRedactList = Array.isArray(options.redactHeaders) ? options.redactHeaders : [];
+
   return function trackRequest(req, res, next) {
     const url = req.originalUrl || req.url || req.path || '';
 
-    // Skip ignored routes if requested
+    // Skip ignored routes
     if (shouldIgnoreRoute(url, options.ignoreRoutes)) {
       return next();
     }
 
     const startAt = process.hrtime();
-    
+    const requestId = `req_${Date.now()}_${++requestIdCounter}`;
+    const timestamp = new Date().toISOString();
+    const sanitizedHeaders = redactHeaders(req.headers || {}, customRedactList);
+
     // Track request count & method
     store.totalRequests++;
     if (store.methods[req.method] !== undefined) {
@@ -61,22 +69,42 @@ export default function createMiddleware(options = {}) {
     res.on('finish', () => {
       const diff = process.hrtime(startAt);
       const timeMs = (diff[0] * 1e3) + (diff[1] * 1e-6);
-      
-      store.totalDuration += timeMs;
 
-      // Track status code
+      store.totalDuration += timeMs;
+      store.recordLatency(timeMs);
+
       const status = res.statusCode;
+      const durationMs = Number(timeMs.toFixed(2));
+
+      const requestEntry = {
+        id: requestId,
+        timestamp,
+        method: req.method,
+        url,
+        status,
+        durationMs,
+        headers: sanitizedHeaders,
+        ip: req.ip || req.socket?.remoteAddress || '127.0.0.1',
+        curl: generateCurl({ method: req.method, url, headers: sanitizedHeaders, body: req.body }),
+      };
+
+      store.recordRequest(requestEntry);
+
+      // Track errors
       if (status >= 400) {
         store.totalErrors++;
         store.recordError({
-          timestamp: new Date().toISOString(),
+          id: requestId,
+          timestamp,
           method: req.method,
           url,
           status,
-          durationMs: Number(timeMs.toFixed(2)),
+          durationMs,
+          headers: sanitizedHeaders,
         });
       }
-      
+
+      // Track status codes
       if (store.statusCodes[status] !== undefined) {
         store.statusCodes[status]++;
       } else {
@@ -88,19 +116,34 @@ export default function createMiddleware(options = {}) {
       const routeKey = `${req.method} ${routePath}`;
       store.recordRoute(routeKey, timeMs);
 
-      // Perform logging if enabled
+      // Slow Request Profiler
+      if (slowThresholdMs > 0 && timeMs >= slowThresholdMs) {
+        store.recordSlowRequest({
+          ...requestEntry,
+          slowThresholdMs,
+        });
+
+        if (options.logAnalytics !== false) {
+          console.warn(`[Analytics SLOW REQUEST] ${req.method} ${url} took ${timeMs.toFixed(2)}ms (Threshold: ${slowThresholdMs}ms)`);
+        }
+      }
+
+      // Evaluate threshold alerts
+      store.checkAlerts(options);
+
+      // Logging if enabled
       if (options.logAnalytics !== false) {
         state.intervalReqCount++;
         const logInterval = options.logInterval || 0;
         const useColors = options.colorize !== false;
-        
+
         if (logInterval === 0 || Date.now() - state.lastLogTime >= logInterval) {
           const { memory } = getSystemMetrics();
           const rssMb = (memory.rss / 1024 / 1024).toFixed(2);
           const avgDuration = store.totalRequests > 0 ? (store.totalDuration / store.totalRequests).toFixed(2) : '0.00';
           const coloredStatus = colorizeStatus(status, useColors);
           const coloredLatency = colorizeLatency(timeMs, useColors);
-          
+
           if (logInterval === 0) {
             console.log(`[Analytics] ${req.method} ${url} -> ${coloredStatus} (${coloredLatency}) | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`);
           } else {
