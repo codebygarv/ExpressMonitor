@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.js"
+    "test": "node --import tsx --test test/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -78,6 +78,7 @@
   "devDependencies": {
     "@types/node": "^26.1.2",
     "tsup": "^8.5.1",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   }
 }
