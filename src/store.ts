@@ -73,6 +73,8 @@ export interface StoreMetrics {
   system: SystemMetrics;
 }
 
+export type ExpressLensMetrics = StoreMetrics;
+
 class MetricsStore {
   totalRequests: number = 0;
   totalErrors: number = 0;
