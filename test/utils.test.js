@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { calculatePercentile, redactHeaders, generateCurl } from '../src/utils.js';
+import { calculatePercentile, redactHeaders, generateCurl } from '../src/utils.ts';
 
 test('Utils Module Suite', async (t) => {
   await t.test('calculatePercentile computes p50, p90, p95, p99 correctly', () => {

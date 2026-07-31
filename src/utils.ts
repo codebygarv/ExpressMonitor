@@ -2,10 +2,14 @@
  * Express Lens Utility Functions
  */
 
-/**
- * Default headers that should be redacted for security.
- */
-const SENSITIVE_HEADERS = new Set([
+export interface RequestPayload {
+  method?: string;
+  url?: string;
+  headers?: Record<string, any>;
+  body?: any;
+}
+
+const SENSITIVE_HEADERS = new Set<string>([
   'authorization',
   'cookie',
   'set-cookie',
@@ -19,11 +23,11 @@ const SENSITIVE_HEADERS = new Set([
 /**
  * Calculates a specific percentile from an array of numbers.
  * Uses linear interpolation for exact results.
- * @param {number[]} values - Array of numerical values (latencies)
- * @param {number} percentile - Percentile to calculate (0 to 100)
- * @returns {number} The calculated percentile value
+ * @param values Array of numerical values (latencies)
+ * @param percentile Percentile to calculate (0 to 100)
+ * @returns The calculated percentile value
  */
-export function calculatePercentile(values, percentile) {
+export function calculatePercentile(values: number[], percentile: number): number {
   if (!values || values.length === 0) return 0;
   if (values.length === 1) return Number(values[0].toFixed(2));
 
@@ -43,15 +47,21 @@ export function calculatePercentile(values, percentile) {
 
 /**
  * Redacts sensitive HTTP headers.
- * @param {Object} headers - Key-value pair of headers
- * @param {string[]} [customSensitiveHeaders=[]] - Additional headers to redact
- * @returns {Object} Sanitized headers object
+ * @param headers Key-value pair of headers
+ * @param customSensitiveHeaders Additional headers to redact
+ * @returns Sanitized headers object
  */
-export function redactHeaders(headers = {}, customSensitiveHeaders = []) {
+export function redactHeaders(
+  headers: Record<string, any> = {},
+  customSensitiveHeaders: string[] = []
+): Record<string, any> {
   if (!headers || typeof headers !== 'object') return {};
 
-  const sensitiveSet = new Set([...SENSITIVE_HEADERS, ...customSensitiveHeaders.map((h) => h.toLowerCase())]);
-  const sanitized = {};
+  const sensitiveSet = new Set<string>([
+    ...SENSITIVE_HEADERS,
+    ...customSensitiveHeaders.map((h) => h.toLowerCase()),
+  ]);
+  const sanitized: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(headers)) {
     const lowerKey = key.toLowerCase();
@@ -67,10 +77,10 @@ export function redactHeaders(headers = {}, customSensitiveHeaders = []) {
 
 /**
  * Generates a copy-pasteable cURL command string for an HTTP request.
- * @param {Object} req - Request info { method, url, headers, body }
- * @returns {string} Formatted cURL command
+ * @param req Request info { method, url, headers, body }
+ * @returns Formatted cURL command
  */
-export function generateCurl(req = {}) {
+export function generateCurl(req: RequestPayload = {}): string {
   const method = (req.method || 'GET').toUpperCase();
   const url = req.url || '/';
   const headers = redactHeaders(req.headers || {});

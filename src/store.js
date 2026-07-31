@@ -1,5 +1,5 @@
 import { getSystemMetrics } from './system.js';
-import { calculatePercentile, redactHeaders } from './utils.js';
+import { calculatePercentile, redactHeaders } from './utils.ts';
 
 const MAX_ROUTES = 500;
 const MAX_LATENCY_SAMPLES = 1000;

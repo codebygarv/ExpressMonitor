@@ -1,6 +1,6 @@
 import store from './store.js';
 import { getSystemMetrics } from './system.js';
-import { redactHeaders, generateCurl } from './utils.js';
+import { redactHeaders, generateCurl } from './utils.ts';
 
 // ANSI color helpers
 function colorizeStatus(status, colorize = true) {

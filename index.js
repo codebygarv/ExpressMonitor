@@ -2,7 +2,7 @@ import createMiddleware from './src/middleware.js';
 import store from './src/store.js';
 import { prometheusHandler as createPrometheusHandler, getPrometheusMetrics as generatePrometheusMetrics } from './src/prometheus.js';
 import { dashboardHandler as createDashboardHandler } from './src/dashboard.js';
-import { generateCurl as buildCurl } from './src/utils.js';
+import { generateCurl as buildCurl } from './src/utils.ts';
 
 /**
  * Express Monitor Middleware Factory
