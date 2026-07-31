@@ -2,6 +2,8 @@ import store from './store.ts';
 import { getSystemMetrics } from './system.ts';
 import { redactHeaders, generateCurl } from './utils.ts';
 import type { AlertOptions } from './store.ts';
+import { createStreamCapturer } from './core/stream.ts';
+import { formatPayload } from './core/formatter.ts';
 
 export interface ExpressLensOptions {
   logAnalytics?: boolean;
@@ -9,6 +11,9 @@ export interface ExpressLensOptions {
   colorize?: boolean;
   ignoreRoutes?: (string | RegExp)[];
   slowThresholdMs?: number;
+  maxBodySize?: number;
+  maxDepth?: number;
+  maxArrayItems?: number;
   redactHeaders?: string[];
   alerts?: AlertOptions;
 }
