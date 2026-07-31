@@ -43,7 +43,7 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test test/*.test.js test/adapters/*.test.js"
+    "test": "node --import tsx --test test/*.test.js test/**/*.test.js"
   },
   "repository": {
     "type": "git",
