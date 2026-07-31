@@ -1,6 +1,7 @@
 # @codebygarv/express-lens
 
 [![npm version](https://badge.fury.io/js/@codebygarv%2Fexpress-lens.svg)](https://badge.fury.io/js/@codebygarv%2Fexpress-lens)
+[![JSR](https://jsr.io/badges/@codebygarv/express-lens)](https://jsr.io/@codebygarv/express-lens)
 [![npm downloads](https://img.shields.io/npm/dm/@codebygarv/express-lens.svg)](https://www.npmjs.com/package/@codebygarv/express-lens)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js CI](https://github.com/codebygarv/ExpressMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/codebygarv/ExpressMonitor/actions)
@@ -12,6 +13,7 @@
 ## ⚡ Highlights
 
 - **Native TypeScript**: Written entirely in strict TypeScript with complete auto-generated type declarations (`.d.ts`).
+- **JSR & NPM Registry**: Published to both NPM and [JSR](https://jsr.io/@codebygarv/express-lens) for Node.js, Deno, and Bun.
 - **Zero External Dependencies**: Lightweight and fast, zero extra npm package footprint.
 - **Embedded Real-Time Dashboard**: Built-in dark mode dashboard UI with Server-Sent Events (SSE) live streaming.
 - **True Percentile Latencies**: Sliding window calculation of **p50, p90, p95, and p99** response times globally and per-route.
@@ -42,15 +44,17 @@
 
 ## 📦 Installation
 
+**NPM / Yarn / pnpm:**
 ```bash
 npm install @codebygarv/express-lens
-```
-
-or with Yarn / pnpm:
-
-```bash
 yarn add @codebygarv/express-lens
 pnpm add @codebygarv/express-lens
+```
+
+**Deno / JSR:**
+```bash
+deno add jsr:@codebygarv/express-lens
+npx jsr add @codebygarv/express-lens
 ```
 
 ---
