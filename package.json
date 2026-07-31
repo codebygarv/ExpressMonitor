@@ -1,10 +1,11 @@
 {
   "name": "@codebygarv/express-lens",
-  "version": "2.1.1",
+  "version": "2.2.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
-  "description": "A lightweight, plug-and-play monitoring package for Express.js applications.",
+  "description": "Zero-dependency HTTP monitoring, APM metrics, percentile latencies (p50/p90/p95/p99), threshold alert callbacks, Prometheus format exporter, slow request profiler, and real-time embedded web dashboard for Express.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -21,13 +22,22 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "node --test"
+    "test": "node --test test/*.test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codebygarv/ExpressMonitor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/codebygarv/ExpressMonitor/issues"
+  },
+  "homepage": "https://github.com/codebygarv/ExpressMonitor#readme",
   "keywords": [
     "express",
     "express-middleware",
     "morgan",
     "morgan-alternative",
+    "pino-alternative",
     "logger",
     "logging",
     "express-logging",
@@ -39,12 +49,30 @@
     "performance",
     "memory-monitoring",
     "route-metrics",
-    "realtime-analytics"
+    "realtime-analytics",
+    "prometheus",
+    "prometheus-exporter",
+    "grafana",
+    "percentile-latency",
+    "p99",
+    "p95",
+    "slow-requests",
+    "dashboard",
+    "http-debugger",
+    "http-inspector",
+    "curl-generator",
+    "har-export",
+    "request-replay",
+    "alerts",
+    "threshold-alerts"
   ],
-  "author": "",
+  "author": "Garv Thakral <garvthakral90@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "peerDependencies": {
-    "express": "^4.22.2"
+    "express": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
