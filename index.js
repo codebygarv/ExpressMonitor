@@ -1,7 +1,7 @@
 import createMiddleware from './src/middleware.ts';
 import store from './src/store.ts';
 import { prometheusHandler as createPrometheusHandler, getPrometheusMetrics as generatePrometheusMetrics } from './src/prometheus.ts';
-import { dashboardHandler as createDashboardHandler } from './src/dashboard.js';
+import { dashboardHandler as createDashboardHandler } from './src/dashboard.ts';
 import { generateCurl as buildCurl } from './src/utils.ts';
 
 /**
