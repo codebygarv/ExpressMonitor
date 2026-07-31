@@ -1,4 +1,5 @@
 import { getSystemMetrics } from './system.ts';
+import type { SystemMetrics } from './system.ts';
 import { calculatePercentile, redactHeaders } from './utils.ts';
 
 const MAX_ROUTES = 500;
@@ -6,58 +7,111 @@ const MAX_LATENCY_SAMPLES = 1000;
 const MAX_RECENT_REQUESTS = 500;
 const MAX_SLOW_REQUESTS = 50;
 
-const store = {
-  // Overall metrics
-  totalRequests: 0,
-  totalErrors: 0,
-  totalDuration: 0,
+export interface RequestEntry {
+  id: string;
+  timestamp: string;
+  method: string;
+  url: string;
+  status: number;
+  durationMs: number;
+  headers: Record<string, any>;
+  ip?: string;
+  curl?: string;
+  slowThresholdMs?: number;
+}
 
-  // Sliding window duration samples (capped at MAX_LATENCY_SAMPLES)
-  latencies: [],
+export interface RouteStats {
+  count: number;
+  totalDuration: number;
+  maxDuration: number;
+  minDuration: number;
+  latencies: number[];
+}
 
-  // Status codes
-  statusCodes: {
+export interface FormattedRouteStats {
+  count: number;
+  avgDuration: number;
+  minDuration: number;
+  maxDuration: number;
+  percentiles: Percentiles;
+}
+
+export interface Percentiles {
+  p50: number;
+  p90: number;
+  p95: number;
+  p99: number;
+}
+
+export interface AlertTrigger {
+  type: 'ERROR_RATE_EXCEEDED' | 'MEMORY_LIMIT_EXCEEDED' | 'LATENCY_THRESHOLD_EXCEEDED';
+  message: string;
+  metric: string;
+  value: number;
+  threshold: number;
+  timestamp: string;
+}
+
+export interface AlertOptions {
+  errorRateThreshold?: number;
+  memoryThresholdMb?: number;
+  avgDurationThresholdMs?: number;
+  onAlert?: (alert: AlertTrigger) => void;
+}
+
+export interface StoreMetrics {
+  totalRequests: number;
+  totalErrors: number;
+  errorRate: string;
+  avgDurationMs: number;
+  percentiles: Percentiles;
+  statusCodes: Record<number, number>;
+  methods: Record<string, number>;
+  routes: Record<string, FormattedRouteStats>;
+  recentErrors: RequestEntry[];
+  slowRequests: RequestEntry[];
+  system: SystemMetrics;
+}
+
+class MetricsStore {
+  totalRequests: number = 0;
+  totalErrors: number = 0;
+  totalDuration: number = 0;
+
+  latencies: number[] = [];
+
+  statusCodes: Record<number, number> = {
     200: 0,
     201: 0,
     400: 0,
     401: 0,
     404: 0,
     500: 0,
-  },
+  };
 
-  // Method metrics
-  methods: {
+  methods: Record<string, number> = {
     GET: 0,
     POST: 0,
     PUT: 0,
     DELETE: 0,
     PATCH: 0,
     OPTIONS: 0,
-  },
+  };
 
-  // Route metrics map (capped at MAX_ROUTES to prevent memory leaks)
-  routes: new Map(),
+  routes: Map<string, RouteStats> = new Map();
+  recentErrors: RequestEntry[] = [];
+  recentRequests: RequestEntry[] = [];
+  slowRequests: RequestEntry[] = [];
+  sseClients: Set<any> = new Set();
 
-  // Recent errors buffer (last 50 errors)
-  recentErrors: [],
-
-  // Recent requests ring buffer (last 500 requests for dashboard & HAR export)
-  recentRequests: [],
-
-  // Slow requests buffer (last 50 requests exceeding slowThresholdMs)
-  slowRequests: [],
-
-  // Active SSE subscribers for real-time dashboard updates
-  sseClients: new Set(),
-
-  recordLatency(timeMs) {
+  recordLatency(timeMs: number): void {
     this.latencies.push(timeMs);
     if (this.latencies.length > MAX_LATENCY_SAMPLES) {
       this.latencies.shift();
     }
-  },
+  }
 
-  recordRoute(routeKey, timeMs) {
+  recordRoute(routeKey: string, timeMs: number): void {
     let key = routeKey;
     if (!this.routes.has(key) && this.routes.size >= MAX_ROUTES) {
       key = 'OTHER /other';
@@ -73,7 +127,7 @@ const store = {
       });
     }
 
-    const routeStats = this.routes.get(key);
+    const routeStats = this.routes.get(key)!;
     routeStats.count++;
     routeStats.totalDuration += timeMs;
     routeStats.maxDuration = Math.max(routeStats.maxDuration, timeMs);
@@ -83,22 +137,21 @@ const store = {
     if (routeStats.latencies.length > MAX_LATENCY_SAMPLES) {
       routeStats.latencies.shift();
     }
-  },
+  }
 
-  recordError(errorInfo) {
+  recordError(errorInfo: RequestEntry): void {
     this.recentErrors.push(errorInfo);
     if (this.recentErrors.length > 50) {
       this.recentErrors.shift();
     }
-  },
+  }
 
-  recordRequest(requestEntry) {
+  recordRequest(requestEntry: RequestEntry): void {
     this.recentRequests.push(requestEntry);
     if (this.recentRequests.length > MAX_RECENT_REQUESTS) {
       this.recentRequests.shift();
     }
 
-    // Broadcast live event to connected SSE subscribers
     if (this.sseClients.size > 0) {
       const payload = `data: ${JSON.stringify(requestEntry)}\n\n`;
       for (const res of this.sseClients) {
@@ -109,16 +162,16 @@ const store = {
         }
       }
     }
-  },
+  }
 
-  recordSlowRequest(slowEntry) {
+  recordSlowRequest(slowEntry: RequestEntry): void {
     this.slowRequests.push(slowEntry);
     if (this.slowRequests.length > MAX_SLOW_REQUESTS) {
       this.slowRequests.shift();
     }
-  },
+  }
 
-  async replayRequest(requestId, fetchFn = globalThis.fetch) {
+  async replayRequest(requestId: string, fetchFn: any = globalThis.fetch): Promise<any> {
     const entry = this.recentRequests.find((r) => r.id === requestId);
     if (!entry) {
       throw new Error(`Request with ID "${requestId}" not found in recent history.`);
@@ -142,25 +195,25 @@ const store = {
         durationMs,
         originalRequestId: requestId,
       };
-    } catch (err) {
+    } catch (err: any) {
       return {
         success: false,
         error: err.message,
         originalRequestId: requestId,
       };
     }
-  },
+  }
 
-  getPercentiles(samples = this.latencies) {
+  getPercentiles(samples: number[] = this.latencies): Percentiles {
     return {
       p50: calculatePercentile(samples, 50),
       p90: calculatePercentile(samples, 90),
       p95: calculatePercentile(samples, 95),
       p99: calculatePercentile(samples, 99),
     };
-  },
+  }
 
-  checkAlerts(options = {}) {
+  checkAlerts(options: { alerts?: AlertOptions } = {}): void {
     const alertsConfig = options.alerts || {};
     if (!alertsConfig.onAlert || typeof alertsConfig.onAlert !== 'function') {
       return;
@@ -169,7 +222,6 @@ const store = {
     const metrics = this.getMetrics();
     const now = new Date().toISOString();
 
-    // 1. Error rate threshold alert
     if (alertsConfig.errorRateThreshold != null) {
       const numericErrorRate = parseFloat(metrics.errorRate);
       if (numericErrorRate >= alertsConfig.errorRateThreshold) {
@@ -184,7 +236,6 @@ const store = {
       }
     }
 
-    // 2. RSS Memory threshold alert (MB)
     if (alertsConfig.memoryThresholdMb != null) {
       const rssMb = Number((metrics.system.memory.rss / (1024 * 1024)).toFixed(2));
       if (rssMb >= alertsConfig.memoryThresholdMb) {
@@ -199,7 +250,6 @@ const store = {
       }
     }
 
-    // 3. Average duration threshold alert (ms)
     if (alertsConfig.avgDurationThresholdMs != null) {
       if (metrics.avgDurationMs >= alertsConfig.avgDurationThresholdMs) {
         alertsConfig.onAlert({
@@ -212,13 +262,13 @@ const store = {
         });
       }
     }
-  },
+  }
 
-  getMetrics() {
+  getMetrics(): StoreMetrics {
     const avgDuration = this.totalRequests > 0 ? Number((this.totalDuration / this.totalRequests).toFixed(2)) : 0;
     const errorRate = this.totalRequests > 0 ? Number(((this.totalErrors / this.totalRequests) * 100).toFixed(2)) : 0;
 
-    const routesObject = {};
+    const routesObject: Record<string, FormattedRouteStats> = {};
     for (const [key, stats] of this.routes.entries()) {
       routesObject[key] = {
         count: stats.count,
@@ -242,9 +292,9 @@ const store = {
       slowRequests: [...this.slowRequests],
       system: getSystemMetrics(),
     };
-  },
+  }
 
-  exportHAR(title = 'Express Lens HTTP Archive') {
+  exportHAR(title: string = 'Express Lens HTTP Archive'): any {
     const entries = this.recentRequests.map((req) => {
       const startTime = new Date(req.timestamp || Date.now()).toISOString();
       const headers = Object.entries(redactHeaders(req.headers || {})).map(([k, v]) => ({
@@ -306,9 +356,9 @@ const store = {
         entries,
       },
     };
-  },
+  }
 
-  reset() {
+  reset(): void {
     this.totalRequests = 0;
     this.totalErrors = 0;
     this.totalDuration = 0;
@@ -319,7 +369,8 @@ const store = {
     this.recentErrors = [];
     this.recentRequests = [];
     this.slowRequests = [];
-  },
-};
+  }
+}
 
+const store = new MetricsStore();
 export default store;

@@ -1,4 +1,4 @@
-import store from './store.js';
+import store from './store.ts';
 
 /**
  * Formats Express Lens metrics into standard Prometheus Exposition text format (v0.0.4).

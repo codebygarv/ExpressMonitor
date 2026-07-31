@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import store from '../src/store.js';
+import store from '../src/store.ts';
 
 test('Store Module Upgrades Suite', async (t) => {
   t.afterEach(() => {

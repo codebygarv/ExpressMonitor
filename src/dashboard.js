@@ -1,4 +1,4 @@
-import store from './store.js';
+import store from './store.ts';
 
 /**
  * Returns the embedded single-page HTML dashboard UI template.

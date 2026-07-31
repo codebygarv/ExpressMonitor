@@ -1,4 +1,4 @@
-import store from './store.js';
+import store from './store.ts';
 import { getSystemMetrics } from './system.ts';
 import { redactHeaders, generateCurl } from './utils.ts';
 
