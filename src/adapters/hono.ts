@@ -7,11 +7,11 @@ import type { ExpressLensOptions } from '../middleware.ts';
  * Hono & Edge framework adapter for Express Lens HTTP monitoring and debugging.
  * Compatible with Hono, Cloudflare Workers, Deno, Bun, and Vercel Edge.
  */
-export function honoExpressLens(options: ExpressLensOptions = {}) {
+export function honoExpressLens(options: ExpressLensOptions = {}): (c: any, next: () => Promise<void>) => Promise<any> {
   const slowThresholdMs = options.slowThresholdMs != null ? options.slowThresholdMs : 500;
   const customRedactList = Array.isArray(options.redactHeaders) ? options.redactHeaders : [];
 
-  return async function middleware(c: any, next: () => Promise<void>) {
+  return async function middleware(c: any, next: () => Promise<void>): Promise<any> {
     const url = c.req.url || c.req.path || '/';
 
     // 1. Intercept /express-lens dashboard endpoints directly inside Hono

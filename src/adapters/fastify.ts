@@ -6,11 +6,11 @@ import type { ExpressLensOptions } from '../middleware.ts';
 /**
  * Fastify plugin adapter for Express Lens HTTP monitoring and debugging.
  */
-export function fastifyExpressLens(options: ExpressLensOptions = {}) {
+export function fastifyExpressLens(options: ExpressLensOptions = {}): (fastify: any) => Promise<void> {
   const slowThresholdMs = options.slowThresholdMs != null ? options.slowThresholdMs : 500;
   const customRedactList = Array.isArray(options.redactHeaders) ? options.redactHeaders : [];
 
-  return async function expressLensPlugin(fastify: any) {
+  return async function expressLensPlugin(fastify: any): Promise<void> {
     const requestTimes = new WeakMap<any, number>();
 
     // 1. Hook into onRequest to record start time
