@@ -1,4 +1,4 @@
-import createMiddleware from './src/middleware.js';
+import createMiddleware from './src/middleware.ts';
 import store from './src/store.ts';
 import { prometheusHandler as createPrometheusHandler, getPrometheusMetrics as generatePrometheusMetrics } from './src/prometheus.js';
 import { dashboardHandler as createDashboardHandler } from './src/dashboard.js';

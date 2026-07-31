@@ -1,9 +1,20 @@
 import store from './store.ts';
 import { getSystemMetrics } from './system.ts';
 import { redactHeaders, generateCurl } from './utils.ts';
+import type { AlertOptions } from './store.ts';
+
+export interface ExpressLensOptions {
+  logAnalytics?: boolean;
+  logInterval?: number;
+  colorize?: boolean;
+  ignoreRoutes?: (string | RegExp)[];
+  slowThresholdMs?: number;
+  redactHeaders?: string[];
+  alerts?: AlertOptions;
+}
 
 // ANSI color helpers
-function colorizeStatus(status, colorize = true) {
+function colorizeStatus(status: number, colorize: boolean = true): string {
   if (!colorize) return String(status);
   if (status >= 500) return `\x1b[31m${status}\x1b[0m`; // Red
   if (status >= 400) return `\x1b[33m${status}\x1b[0m`; // Yellow
@@ -12,15 +23,15 @@ function colorizeStatus(status, colorize = true) {
   return String(status);
 }
 
-function colorizeLatency(timeMs, colorize = true) {
+function colorizeLatency(timeMs: number, colorize: boolean = true): string {
   const formatted = `${timeMs.toFixed(2)}ms`;
   if (!colorize) return formatted;
   if (timeMs > 1000) return `\x1b[1;\x1b[31m${formatted}\x1b[0m`; // Bold Red
-  if (timeMs > 500) return `\x1b[33m${formatted}\x1b[0m`;        // Yellow
-  return `\x1b[32m${formatted}\x1b[0m`;                            // Green
+  if (timeMs > 500) return `\x1b[33m${formatted}\x1b[0m`; // Yellow
+  return `\x1b[32m${formatted}\x1b[0m`; // Green
 }
 
-function shouldIgnoreRoute(url, ignoreRoutes = []) {
+function shouldIgnoreRoute(url: string, ignoreRoutes: (string | RegExp)[] = []): boolean {
   if (!ignoreRoutes || ignoreRoutes.length === 0) return false;
   return ignoreRoutes.some((pattern) => {
     if (typeof pattern === 'string') {
@@ -35,7 +46,7 @@ function shouldIgnoreRoute(url, ignoreRoutes = []) {
 
 let requestIdCounter = 0;
 
-export default function createMiddleware(options = {}) {
+export default function createMiddleware(options: ExpressLensOptions = {}) {
   const state = {
     lastLogTime: Date.now(),
     intervalReqCount: 0,
@@ -44,7 +55,7 @@ export default function createMiddleware(options = {}) {
   const slowThresholdMs = options.slowThresholdMs != null ? options.slowThresholdMs : 500;
   const customRedactList = Array.isArray(options.redactHeaders) ? options.redactHeaders : [];
 
-  return function trackRequest(req, res, next) {
+  return function trackRequest(req: any, res: any, next: any): void {
     const url = req.originalUrl || req.url || req.path || '';
 
     // Skip ignored routes
@@ -68,7 +79,7 @@ export default function createMiddleware(options = {}) {
     // Hook into response finish event
     res.on('finish', () => {
       const diff = process.hrtime(startAt);
-      const timeMs = (diff[0] * 1e3) + (diff[1] * 1e-6);
+      const timeMs = diff[0] * 1e3 + diff[1] * 1e-6;
 
       store.totalDuration += timeMs;
       store.recordLatency(timeMs);
@@ -124,7 +135,9 @@ export default function createMiddleware(options = {}) {
         });
 
         if (options.logAnalytics !== false) {
-          console.warn(`[Analytics SLOW REQUEST] ${req.method} ${url} took ${timeMs.toFixed(2)}ms (Threshold: ${slowThresholdMs}ms)`);
+          console.warn(
+            `[Analytics SLOW REQUEST] ${req.method} ${url} took ${timeMs.toFixed(2)}ms (Threshold: ${slowThresholdMs}ms)`
+          );
         }
       }
 
@@ -140,14 +153,19 @@ export default function createMiddleware(options = {}) {
         if (logInterval === 0 || Date.now() - state.lastLogTime >= logInterval) {
           const { memory } = getSystemMetrics();
           const rssMb = (memory.rss / 1024 / 1024).toFixed(2);
-          const avgDuration = store.totalRequests > 0 ? (store.totalDuration / store.totalRequests).toFixed(2) : '0.00';
+          const avgDuration =
+            store.totalRequests > 0 ? (store.totalDuration / store.totalRequests).toFixed(2) : '0.00';
           const coloredStatus = colorizeStatus(status, useColors);
           const coloredLatency = colorizeLatency(timeMs, useColors);
 
           if (logInterval === 0) {
-            console.log(`[Analytics] ${req.method} ${url} -> ${coloredStatus} (${coloredLatency}) | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`);
+            console.log(
+              `[Analytics] ${req.method} ${url} -> ${coloredStatus} (${coloredLatency}) | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`
+            );
           } else {
-            console.log(`[Analytics Summary] Interval Reqs: ${state.intervalReqCount} | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`);
+            console.log(
+              `[Analytics Summary] Interval Reqs: ${state.intervalReqCount} | Total Reqs: ${store.totalRequests} | Errors: ${store.totalErrors} | Avg: ${avgDuration}ms | Mem: ${rssMb}MB`
+            );
             state.intervalReqCount = 0;
             state.lastLogTime = Date.now();
           }
