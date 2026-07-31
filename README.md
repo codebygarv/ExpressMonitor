@@ -11,6 +11,7 @@
 
 ## ⚡ Highlights
 
+- **Native TypeScript**: Written entirely in strict TypeScript with complete auto-generated type declarations (`.d.ts`).
 - **Zero External Dependencies**: Lightweight and fast, zero extra npm package footprint.
 - **Embedded Real-Time Dashboard**: Built-in dark mode dashboard UI with Server-Sent Events (SSE) live streaming.
 - **True Percentile Latencies**: Sliding window calculation of **p50, p90, p95, and p99** response times globally and per-route.
