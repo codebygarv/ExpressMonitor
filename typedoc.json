@@ -1,0 +1,13 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "index.ts",
+    "src/adapters/express.ts",
+    "src/adapters/fastify.ts",
+    "src/adapters/hono.ts",
+    "src/next.ts"
+  ],
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none"
+}

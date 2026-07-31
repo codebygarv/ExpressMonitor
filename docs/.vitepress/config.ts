@@ -11,6 +11,7 @@ export default defineConfig({
       { text: 'Dashboard', link: '/guides/dashboard' },
       { text: 'Prometheus', link: '/guides/prometheus' },
       { text: 'Adapters', link: '/guides/adapters' },
+      { text: 'API Reference', link: '/api/index' },
     ],
     sidebar: [
       {
@@ -26,6 +27,12 @@ export default defineConfig({
           { text: 'Embedded Web Dashboard', link: '/guides/dashboard' },
           { text: 'Prometheus Exporter', link: '/guides/prometheus' },
           { text: 'Multi-Framework Adapters', link: '/guides/adapters' },
+        ],
+      },
+      {
+        text: 'API Reference',
+        items: [
+          { text: 'API Modules', link: '/api/index' },
         ],
       },
     ],
