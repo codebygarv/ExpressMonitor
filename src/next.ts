@@ -6,11 +6,11 @@ import type { ExpressLensOptions } from './middleware.ts';
 /**
  * Higher-Order Function to wrap Next.js App Router route handlers with HTTP monitoring.
  */
-export function withExpressLens(handler: Function, options: ExpressLensOptions = {}) {
+export function withExpressLens(handler: Function, options: ExpressLensOptions = {}): (req: Request, context?: any) => Promise<Response> {
   const slowThresholdMs = options.slowThresholdMs != null ? options.slowThresholdMs : 500;
   const customRedactList = Array.isArray(options.redactHeaders) ? options.redactHeaders : [];
 
-  return async function expressLensNextHandler(req: Request, context?: any) {
+  return async function expressLensNextHandler(req: Request, context?: any): Promise<Response> {
     const startTime = globalThis.performance ? globalThis.performance.now() : Date.now();
     const url = req.url || '/';
     const method = req.method || 'GET';
@@ -102,8 +102,8 @@ export function withExpressLens(handler: Function, options: ExpressLensOptions =
  * Route handler for exposing the Express Lens dashboard in Next.js catch-all route.
  * Usage: export const GET = dashboardRoute(); inside app/api/express-lens/[[...route]]/route.ts
  */
-export function dashboardRoute() {
-  return async function handleNextDashboard(req: Request) {
+export function dashboardRoute(): (req: Request) => Promise<Response> {
+  return async function handleNextDashboard(req: Request): Promise<Response> {
     const url = req.url || '';
     if (url.includes('/metrics-json')) {
       return Response.json(store.getMetrics());
