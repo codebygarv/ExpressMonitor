@@ -1,4 +1,4 @@
-import { getSystemMetrics } from './system.js';
+import { getSystemMetrics } from './system.ts';
 import { calculatePercentile, redactHeaders } from './utils.ts';
 
 const MAX_ROUTES = 500;

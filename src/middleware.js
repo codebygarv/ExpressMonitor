@@ -1,5 +1,5 @@
 import store from './store.js';
-import { getSystemMetrics } from './system.js';
+import { getSystemMetrics } from './system.ts';
 import { redactHeaders, generateCurl } from './utils.ts';
 
 // ANSI color helpers
